@@ -38,8 +38,7 @@ func (c *Cache) Get(key string) (interface{}, bool) {
 		return nil, false
 	}
 
-	now := time.Now()
-	if cachedItem.expiredAt.Before(now) {
+	if cachedItem.isExpired() {
 		return nil, false
 	}
 
@@ -129,9 +128,8 @@ func (c *Cache) cleanExpiredData() {
 	c.Lock()
 	defer c.Unlock()
 
-	now := time.Now()
 	for key, cachedItem := range c.cache {
-		if cachedItem.expiredAt.After(now) {
+		if cachedItem.isExpired() {
 			delete(c.cache, key)
 		}
 	}
@@ -147,4 +145,9 @@ func (c *Cache) IsNeedToClearCache() bool {
 
 func (c *Cache) ForceClean() {
 	c.cleanExpiredData()
+}
+
+func (it *item) isExpired() bool {
+	now := time.Now()
+	return it.expiredAt.Before(now)
 }
