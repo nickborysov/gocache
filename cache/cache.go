@@ -121,16 +121,30 @@ func (c *Cache) RemoveAll() {
 }
 
 func (c *Cache) cleanExpiredData() {
-	now := time.Now()
-	if c.lastCleanAt.Add(c.cacheCleanDelay).After(now) {
+	if !c.IsNeedToClearCache() {
 		// No need clean yet
 		return
 	}
+
 	c.Lock()
 	defer c.Unlock()
+
+	now := time.Now()
 	for key, cachedItem := range c.cache {
 		if cachedItem.expiredAt.After(now) {
 			delete(c.cache, key)
 		}
 	}
+	c.lastCleanAt = time.Now()
+}
+
+func (c *Cache) IsNeedToClearCache() bool {
+	c.RLock()
+	defer c.RUnlock()
+	now := time.Now()
+	return c.lastCleanAt.Add(c.cacheCleanDelay).Before(now)
+}
+
+func (c *Cache) ForceClean() {
+	c.cleanExpiredData()
 }
