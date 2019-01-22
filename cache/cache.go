@@ -99,7 +99,7 @@ func (c *Cache) SetWithExpiredAt(key string, value interface{}, expiredAt time.T
 }
 
 func (c *Cache) Set(key string, value interface{}, expiration time.Duration) {
-	c.SetWithExpiredAt(key, value, time.Now().Add(expiration))
+	c.SetWithExpiredAt(key, value, time.Now().Add(expiration*time.Second))
 }
 
 func (c *Cache) Delete(key string) {
@@ -140,7 +140,7 @@ func (c *Cache) IsNeedToClearCache() bool {
 	c.RLock()
 	defer c.RUnlock()
 	now := time.Now()
-	return c.lastCleanAt.Add(c.cacheCleanDelay).Before(now)
+	return c.lastCleanAt.Add(c.cacheCleanDelay * time.Second).Before(now)
 }
 
 func (c *Cache) ForceClean() {
