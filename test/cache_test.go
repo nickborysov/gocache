@@ -1,4 +1,4 @@
-package main
+package cache_testing
 
 import (
 	"testing"
