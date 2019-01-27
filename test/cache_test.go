@@ -17,6 +17,23 @@ func TestCache(t *testing.T) {
 	t.Run("TestCacheString", func(t *testing.T) { testCacheString(t, c) })
 	t.Run("TestCacheBool", func(t *testing.T) { testCacheBool(t, c) })
 	t.Run("TestCacheExpiration", func(t *testing.T) { testCacheExpiration(t, c) })
+	t.Run("TestCacheNoExpiration", func(t *testing.T) { testCacheNoExpiration(t, c) })
+}
+
+func testCacheNoExpiration(t *testing.T, c *cache.Cache) {
+	var key string = "some_value_which_not_expire"
+	var value string = "cache me, I'm invulnerable"
+	c.SetNeverExpired(key, value)
+
+	for i := 5; i > 0; i-- {
+		cachedValue, ok := c.Get(key)
+		if ok && cachedValue == value {
+			t.Logf("Value: %+v\n", cachedValue)
+		} else {
+			t.Errorf("Expected value %+v, current value: %+v\n", value, cachedValue)
+		}
+		time.Sleep(1 * time.Second)
+	}
 }
 
 func testCacheExpiration(t *testing.T, c *cache.Cache) {

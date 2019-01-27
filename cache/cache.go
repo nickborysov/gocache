@@ -107,6 +107,10 @@ func (c *Cache) Set(key string, value interface{}, expiration time.Duration) {
 	c.SetWithExpiredAt(key, value, time.Now().Add(expiration*time.Second))
 }
 
+func (c *Cache) SetNeverExpired(key string, value interface{}) {
+	c.SetWithExpiredAt(key, value, time.Time{})
+}
+
 func (c *Cache) Delete(key string) {
 	c.Lock()
 	defer c.Unlock()
@@ -154,5 +158,5 @@ func (c *Cache) ForceClean() {
 
 func (it *item) isExpired() bool {
 	now := time.Now()
-	return it.expiredAt.Before(now)
+	return it.expiredAt.Before(now) && !it.expiredAt.IsZero()
 }
