@@ -21,12 +21,17 @@ type item struct {
 	value     interface{}
 }
 
-func NewCache(delay int64) *Cache {
+func NewCache() *Cache {
 	return &Cache{
-		cacheCleanDelay: time.Duration(time.Duration(delay) * time.Second),
+		cacheCleanDelay: time.Duration(time.Duration(DefaultCacheCleanDelay) * time.Second),
 		cache:           make(map[string]item),
 		lastCleanAt:     time.Now(),
 	}
+}
+
+func (c *Cache) SetCacheCleanDelay(delay int64) *Cache {
+	c.cacheCleanDelay = time.Duration(time.Duration(delay) * time.Second)
+	return c
 }
 
 func (c *Cache) Get(key string) (interface{}, bool) {
